@@ -1,0 +1,51 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Battery state
+battery_state.txt
+
+# Model weights (large files)
+*.pt
+*.onnx
+
+# Video files
+*.mp4
+*.avi
+*.mov
+
+# Render
+render.yaml
