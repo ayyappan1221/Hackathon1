@@ -47,5 +47,3 @@ battery_state.txt
 *.avi
 *.mov
 
-# Render
-render.yaml
