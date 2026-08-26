@@ -35,7 +35,7 @@ services:
       - key: VILLAGE_LIMIT
         value: "0.72"
       - key: CORS_ORIGINS
-        value: "https://eleguard-frontend.onrender.com,https://eleguard-frontend.onrender.com"
+        value: "https://eleguard-frontend.onrender.com"
     healthCheckPath: /
     autoDeploy: true
 
