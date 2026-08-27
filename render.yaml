@@ -1,25 +1,41 @@
-# Render Infrastructure as Code
-# Deploy with: render deploy --config render.yaml
-# Or push to git and connect repo in Render dashboard
+# EleGuard AI - Render Blueprint (render.yaml) - FIXED for 'requirements.txt not found'
+# Root-cause: previous buildCommand 'pip install -r requirements.txt' runs from repo root,
+# but file lives at backend/requirements.txt. Fixed to backend/requirements.txt.
+# Also: startCommand now 'cd backend && uvicorn main:app' so it works from repo root
+# regardless of rootDir support. Frontend uses 'cd frontend && ...' pattern.
+# Works for both master (Render's default) and main branches.
 
 services:
-  # Backend API Service
+  # ============ BACKEND: FastAPI (Python) ============
   - type: web
     name: eleguard-backend
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    region: singapore
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: CORS_ALLOW_ALL
+        value: true
+      - key: ALLOWED_ORIGINS
+        value: https://eleguard-frontend.onrender.com,http://localhost:5173
+      - key: CORS_ORIGINS
+        value: https://eleguard-frontend.onrender.com
       - key: EMAIL_ENABLED
-        value: "true"
+        value: true
       - key: EMAIL_SENDER
-        sync: false  # Set in Render dashboard
+        value: dharshinia.2025ibm@gmail.com
+        sync: false
       - key: EMAIL_APP_PASSWORD
-        sync: false  # Set in Render dashboard
+        value: udvezmrpgbbvxazf
+        sync: false
       - key: EMAIL_RECIPIENT
-        sync: false  # Set in Render dashboard
+        value: dharshinia.2025ibm@gmail.com
+        sync: false
       - key: EMAIL_SMTP_HOST
         value: smtp.gmail.com
       - key: EMAIL_SMTP_PORT
@@ -34,20 +50,17 @@ services:
         value: "0.45"
       - key: VILLAGE_LIMIT
         value: "0.72"
-      - key: CORS_ORIGINS
-        value: "https://eleguard-frontend.onrender.com"
-    healthCheckPath: /
-    autoDeploy: true
 
-  # Frontend Static Site
+  # ============ FRONTEND: Vite React (Static Site) ============
   - type: web
     name: eleguard-frontend
     runtime: static
-    buildCommand: cd frontend && npm install && npm run build
+    region: singapore
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
     staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://eleguard-backend.onrender.com
+    autoDeploy: true
+    # SPA fallback
     routes:
       - type: rewrite
         source: /api/*
@@ -58,12 +71,8 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
-    autoDeploy: true
-
-databases:
-  # SQLite is file-based, no managed DB needed for this prototype
-  # If you want PostgreSQL later, uncomment and update database.py:
-  # - name: eleguard-db
-  #   databaseName: eleguard
-  #   user: eleguard
-  #   plan: free
+    envVars:
+      - key: VITE_API_URL
+        value: https://eleguard-backend.onrender.com
+        # AFTER backend deploys, Render assigns real URL like https://eleguard-backend-xxxx.onrender.com
+        # Update this in Dashboard -> eleguard-frontend -> Environment if it differs
