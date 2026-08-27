@@ -1,8 +1,24 @@
-# EleGuard AI - One-click Railway (single service)
-# Just click Deploy on https://railway.app/new -> select ayyappan1221/Hackathon1
-# No Root Directory needed - Dockerfile at repo root is auto-detected
+# EleGuard AI - One-click Railway (single service via Nixpacks)
+
+# No Root Directory needed - builds frontend + backend together
+
+
+
+[build]
+
+builder = "nixpacks"
+
+buildCommand = "pip install -r backend/requirements.txt && pip install -r requirements.txt 2>/dev/null || true; cd frontend && npm ci && npm run build"
+
+
 
 [deploy]
+
+startCommand = "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+
 healthcheckPath = "/"
+
 healthcheckTimeout = 300
+
 restartPolicyType = "on_failure"
+
