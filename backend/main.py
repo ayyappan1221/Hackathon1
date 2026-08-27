@@ -61,13 +61,15 @@ _allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://12
 _allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
 # also allow any *.onrender.com and *.vercel.app for demo
 # FastAPI CORSMiddleware doesn't support wildcards, so we allow all if env says "*"
+_allow_credentials = True
 if os.getenv("CORS_ALLOW_ALL", "false").lower() == "true":
     _allowed_origins = ["*"]
+    _allow_credentials = False
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
-    allow_credentials=True,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
