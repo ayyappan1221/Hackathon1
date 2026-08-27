@@ -1,0 +1,66 @@
+# EleGuard AI - Root .gitignore
+# NOTE: User requested .env files be TRACKED for Render deployment demo.
+# By default .env is ignored for security, but we explicitly UN-ignore
+# backend/.env and frontend/.env below so they get committed.
+# WARNING: .env contains EMAIL_APP_PASSWORD - rotate it after hackathon if public repo.
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+pip-log.txt
+*.egg-info/
+.eggs/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+
+# OS / Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# DB (don't push local sqlite - Render will create fresh)
+backend/eleguard.db
+backend/eleguard.db-*
+*.db-journal
+*.db-wal
+*.db-shm
+
+# IoT battery state (runtime)
+iot/battery_state.txt
+
+# AI - large weights/video (optional: comment out if you WANT to push yolo weights)
+# Uncomment to avoid pushing large files (>80MB) to GitHub:
+# ai/yolo11*.pt
+# ai/*.mp4
+
+# BUT keep env files tracked:
+!backend/.env
+!frontend/.env
+!.env
+
+# Keep render.yaml tracked
+!render.yaml

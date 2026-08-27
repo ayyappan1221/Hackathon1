@@ -1,0 +1,1708 @@
+/* =========================================
+   GLOBAL
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b1220;
+  color: #f8fafc;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header {
+  padding: 25px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111827;
+  border-bottom: 1px solid #263244;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+.header p {
+  margin: 7px 0 0;
+  color: #94a3b8;
+}
+
+.system-status {
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: #123524;
+  color: #4ade80;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.system-status.offline {
+  background: #451a1a;
+  color: #fca5a5;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.system-status.offline .status-dot {
+  background: #ef4444;
+}
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+.dashboard {
+  padding: 30px 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1500px;
+  margin: auto;
+}
+
+
+/* =========================================
+   CARDS
+========================================= */
+
+.card {
+  background: #111827;
+  border: 1px solid #263244;
+  border-radius: 16px;
+  padding: 22px;
+  min-height: 180px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card:hover {
+  border-color: #475569;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.card h3 {
+  margin-bottom: 8px;
+  font-size: 19px;
+}
+
+.card p {
+  color: #94a3b8;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.online {
+  color: #4ade80;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.node-offline {
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.timestamp {
+  font-size: 12px;
+}
+
+.power-badge {
+  font-size: 12px;
+  color: #fbbf24;
+  margin-top: 6px;
+}
+
+
+/* =========================================
+   LIVE CAMERA FEED
+========================================= */
+
+.video-feed-card {
+  grid-column: span 1;
+}
+
+.video-feed-img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 12px;
+  background: #0f172a;
+  min-height: 160px;
+  display: block;
+  border: 1px solid #263244;
+}
+
+.video-feed-caption {
+  font-size: 11px;
+  margin-top: 8px;
+  color: #64748b !important;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #451a1a;
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: live-pulse 1.2s infinite;
+}
+
+@keyframes live-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+
+/* =========================================
+   SENSOR
+========================================= */
+
+.sensor-icon {
+  font-size: 30px;
+}
+
+.sensor-value {
+  font-size: 25px;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+.safe {
+  color: #4ade80;
+}
+
+.danger {
+  color: #ef4444;
+}
+
+.big-value {
+  font-size: 34px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+
+/* =========================================
+   PROGRESS BAR
+========================================= */
+
+.progress {
+  height: 8px;
+  background: #263244;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #f97316;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar.battery {
+  background: #22c55e;
+}
+
+
+/* =========================================
+   ACTUATOR
+========================================= */
+
+.actuator-card {
+  grid-column: span 1;
+}
+
+.actuator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #263244;
+}
+
+.actuator:last-child {
+  border-bottom: none;
+}
+
+.active {
+  color: #ef4444;
+}
+
+.inactive {
+  color: #4ade80;
+}
+
+
+/* =========================================
+   AI DETECTION
+========================================= */
+
+.ai-status {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.ai-status.detected {
+  color: #ef4444;
+}
+
+.ai-status.clear {
+  color: #22c55e;
+}
+
+.ai-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.ai-info div {
+  background: #0f172a;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.ai-info span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.ai-info strong {
+  font-size: 18px;
+}
+
+.elephant-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.elephant-list-item {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr 45px;
+  gap: 6px;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+
+/* =========================================
+   RISK
+========================================= */
+
+.risk-score {
+  font-size: 52px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.risk-level {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.risk-score.low,
+.risk-level.low {
+  color: #22c55e;
+}
+
+.risk-score.medium,
+.risk-level.medium {
+  color: #eab308;
+}
+
+.risk-score.high,
+.risk-level.high {
+  color: #f97316;
+}
+
+.risk-score.critical,
+.risk-level.critical {
+  color: #ef4444;
+}
+
+.risk-reasons {
+  margin: 15px 0;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.risk-reasons div {
+  margin: 6px 0;
+}
+
+.explanation-box {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: #0f172a;
+  border-left: 3px solid #38bdf8;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.risk-action {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #263244;
+  text-align: center;
+}
+
+.risk-action span {
+  display: block;
+  color: #94a3b8;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.risk-action strong {
+  font-size: 13px;
+}
+
+
+/* =========================================
+   PREDICTION
+========================================= */
+
+.prediction-trend {
+  font-size: 17px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.prediction-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #263244;
+  font-size: 13px;
+}
+
+.prediction-row:last-child {
+  border-bottom: none;
+}
+
+.prediction-row span {
+  color: #94a3b8;
+}
+
+
+/* =========================================
+   SAFE ROUTE
+========================================= */
+
+.safe-route-text {
+  font-size: 14px;
+  color: #e2e8f0 !important;
+  line-height: 1.6;
+  margin-top: 15px;
+}
+
+.voice-alert-text {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #86efac !important;
+}
+
+
+/* =========================================
+   LIVE MAP
+========================================= */
+
+.map-card {
+  overflow: hidden;
+}
+
+.live-map {
+  position: relative;
+  height: 260px;
+  margin-top: 15px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #172033;
+  border: 1px solid #334155;
+}
+
+.forest-area {
+  position: absolute;
+  top: 35px;
+  left: 15px;
+  right: 15px;
+  height: 150px;
+  border-radius: 50%;
+  background: #183d2b;
+  border: 2px dashed #3f8060;
+}
+
+.forest-label {
+  position: absolute;
+  top: 8px;
+  left: 18px;
+  z-index: 5;
+  font-size: 11px;
+  font-weight: bold;
+  color: #86efac;
+}
+
+.tree {
+  position: absolute;
+  font-size: 25px;
+  z-index: 1;
+}
+
+.tree-1 { left: 15px; top: 20px; }
+.tree-2 { right: 25px; top: 30px; }
+.tree-3 { left: 45px; bottom: 15px; }
+.tree-4 { right: 80px; bottom: 20px; }
+
+.elephant-marker {
+  position: absolute;
+  left: 18%;
+  top: 30%;
+  font-size: 32px;
+  z-index: 6;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+  transition: left 0.4s linear, top 0.4s linear;
+}
+
+.elephant-marker.primary {
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));
+  z-index: 7;
+}
+
+.risk-zone {
+  position: absolute;
+  right: 25%;
+  top: 30%;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.18);
+  border: 2px solid #ef4444;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+}
+
+.risk-zone span {
+  font-size: 20px;
+}
+
+.risk-zone small {
+  font-size: 8px;
+  color: #fca5a5;
+}
+
+.safe-zone {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.15);
+  border: 2px solid #22c55e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.safe-zone span {
+  font-size: 14px;
+}
+
+.safe-zone small {
+  font-size: 6px;
+  color: #86efac;
+}
+
+.village-area {
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #293548;
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 7;
+}
+
+.node-marker {
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #263b52;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 7;
+}
+
+.map-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.map-status strong {
+  color: #f8fafc;
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.error {
+  margin: 20px 40px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #451a1a;
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
+}
+
+
+/* =========================================
+   ALERT HISTORY
+========================================= */
+
+.alert-history-card {
+  grid-column: 1 / -1;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.alert-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.false-alarm-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.false-alarm-btn:hover {
+  border-color: #94a3b8;
+}
+
+.event-count {
+  font-size: 13px;
+  color: #94a3b8;
+  background: #182235;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.sms-badge {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.sms-badge.sms-on {
+  background: #123524;
+  color: #4ade80;
+}
+
+.sms-badge.sms-off {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  background: #182235;
+  border-left: 4px solid #64748b;
+}
+
+.alert-item.critical { border-left-color: #ef4444; }
+.alert-item.warning { border-left-color: #f97316; }
+.alert-item.normal { border-left-color: #22c55e; }
+.alert-item.false_alarm { border-left-color: #64748b; opacity: 0.7; }
+
+.alert-time {
+  min-width: 75px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content strong {
+  font-size: 14px;
+}
+
+.alert-content p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.alert-targets {
+  color: #38bdf8 !important;
+  font-size: 11px !important;
+}
+
+.alert-score {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 25px;
+  color: #94a3b8;
+}
+
+
+/* =========================================
+   DETECTION HISTORY
+========================================= */
+
+.history-card {
+  grid-column: span 1;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: 70px 20px 1fr 1fr;
+  gap: 8px;
+  font-size: 11.5px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #182235;
+  color: #cbd5e1;
+}
+
+.history-time {
+  color: #94a3b8;
+}
+
+
+/* =========================================
+   HEATMAP
+========================================= */
+
+.heatmap-card {
+  grid-column: span 1;
+}
+
+.heatmap-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 140px;
+  margin-top: 20px;
+}
+
+.heatmap-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.heatmap-bar {
+  width: 100%;
+  min-height: 3px;
+  background: linear-gradient(180deg, #ef4444, #f97316);
+  border-radius: 4px 4px 0 0;
+}
+
+.heatmap-label {
+  font-size: 8px;
+  color: #64748b;
+  margin-top: 6px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+
+/* =========================================
+   EVENT SUMMARY
+========================================= */
+
+.event-summary-card {
+  grid-column: 1 / -1;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.summary-box {
+  background: #182235;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.summary-box span {
+  display: block;
+  color: #94a3b8;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.summary-box strong {
+  font-size: 22px;
+}
+
+.warning-box strong { color: #f97316; }
+.critical-box strong { color: #ef4444; }
+.normal-box strong { color: #22c55e; }
+
+
+/* =========================================
+   COST & IMPACT
+========================================= */
+
+.cost-card {
+  grid-column: 1 / -1;
+}
+
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.cost-box {
+  background: #182235;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.cost-box.highlight {
+  background: #123524;
+  border: 1px solid #22c55e;
+}
+
+.cost-box span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.cost-box strong {
+  display: block;
+  font-size: 18px;
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.cost-box small {
+  color: #64748b;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.cost-note {
+  margin-top: 15px;
+  padding: 12px;
+  background: #0f172a;
+  border-left: 3px solid #22c55e;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: #cbd5e1 !important;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #64748b;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 25px;
+  }
+  .header {
+    padding: 22px 25px;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+  }
+  .header h1 {
+    font-size: 26px;
+  }
+  .dashboard {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 15px;
+  }
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cost-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .alert-header-right {
+    flex-wrap: wrap;
+  }
+  .alert-item {
+    gap: 8px;
+  }
+  .alert-time {
+    min-width: 60px;
+  }
+  .map-status {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .history-item {
+    grid-template-columns: 55px 15px 1fr 1fr;
+    font-size: 10px;
+  }
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 450px) {
+  .card {
+    padding: 18px;
+  }
+  .ai-info {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+  }
+  .ai-info div {
+    padding: 8px 5px;
+  }
+  .ai-info strong {
+    font-size: 15px;
+  }
+  .risk-score {
+    font-size: 45px;
+  }
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .live-map {
+    height: 240px;
+  }
+}
+/* =========================================================
+   NOTE: everything below this point is NEW. The entire original
+   stylesheet above is untouched, so existing look/behavior stays
+   exactly the same by default (theme defaults to dark, sound is
+   off until enabled, trail only draws once positions exist).
+========================================================= */
+
+
+/* =========================================
+   HEADER CONTROLS (theme + sound buttons)
+========================================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.theme-toggle-btn,
+.sound-toggle-btn {
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 9px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle-btn:hover,
+.sound-toggle-btn:hover {
+  border-color: #94a3b8;
+}
+
+.sound-toggle-btn.sound-on {
+  background: #123524;
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+
+/* =========================================
+   CRITICAL ALERT BANNER + BEEP INDICATOR
+========================================= */
+
+.critical-banner {
+  margin: 0 40px 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #451a1a;
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  animation: critical-pulse 1.2s infinite;
+}
+
+@keyframes critical-pulse {
+  0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.5); }
+  100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0.4); }
+}
+
+.beep-indicator {
+  margin-left: auto;
+  color: #fecaca;
+  font-size: 13px;
+}
+
+.beep-indicator.muted {
+  color: #fca5a5;
+  opacity: 0.75;
+  font-weight: normal;
+}
+
+
+/* =========================================
+   ELEPHANT MOVEMENT TRAIL (on Live Map)
+========================================= */
+
+.trail-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.trail-line {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.85;
+}
+
+.trail-dot {
+  fill: #fbbf24;
+  opacity: 0.6;
+}
+
+
+/* =========================================
+   LIGHT THEME
+   Applied only when <html data-theme="light">.
+   Dark theme (default, no attribute set yet on
+   first paint / theme === "dark") is completely
+   unaffected since none of these selectors match.
+========================================= */
+
+html[data-theme="light"] body {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .header p {
+  color: #475569;
+}
+
+html[data-theme="light"] .theme-toggle-btn,
+html[data-theme="light"] .sound-toggle-btn {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .sound-toggle-btn.sound-on {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #15803d;
+}
+
+html[data-theme="light"] .system-status {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+html[data-theme="light"] .system-status.offline {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+html[data-theme="light"] .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="light"] .card p {
+  color: #64748b;
+}
+
+html[data-theme="light"] .card h2,
+html[data-theme="light"] .card h3 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .ai-info div,
+html[data-theme="light"] .elephant-list-item,
+html[data-theme="light"] .history-item,
+html[data-theme="light"] .alert-item,
+html[data-theme="light"] .summary-box,
+html[data-theme="light"] .cost-box,
+html[data-theme="light"] .explanation-box {
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .cost-box.highlight {
+  background: #dcfce7;
+  border: 1px solid #22c55e;
+}
+
+html[data-theme="light"] .live-map {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .forest-area {
+  background: #d1fae5;
+  border-color: #34d399;
+}
+
+html[data-theme="light"] .village-area {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .node-marker {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+html[data-theme="light"] .risk-reasons,
+html[data-theme="light"] .explanation-box,
+html[data-theme="light"] .safe-route-text,
+html[data-theme="light"] .cost-note {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .video-feed-img {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .no-alerts {
+  color: #64748b;
+}
+
+html[data-theme="light"] footer {
+  color: #64748b;
+}
+
+
+/* =========================================
+   MOBILE - header controls
+========================================= */
+
+@media (max-width: 700px) {
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .critical-banner {
+    margin: 0 20px 15px;
+  }
+}
+
+
+/* =========================================================
+   NEW: EMAIL COOLDOWN UI (multi-line status badge)
+   Only applies when the badge has the extra "sms-badge-multiline"
+   class (added just for the alert-header usage) - the original
+   .sms-badge / .sms-on / .sms-off pill styling above is untouched,
+   so nothing else that might use those classes is affected.
+========================================================= */
+
+.sms-badge.sms-badge-multiline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.sms-badge-line {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.sms-badge-sub {
+  font-size: 10px;
+  font-weight: normal;
+  opacity: 0.85;
+}
+
+html[data-theme="light"] .sms-badge.sms-on {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+html[data-theme="light"] .sms-badge.sms-off {
+  background: #f1f5f9;
+  color: #64748b;
+}
+/* =========================================================
+   NOTE: everything below this point is NEW. The entire original
+   stylesheet above is untouched, so existing look/behavior stays
+   exactly the same by default (theme defaults to dark, sound is
+   off until enabled, trail only draws once positions exist).
+========================================================= */
+
+
+/* =========================================
+   HEADER CONTROLS (theme + sound buttons)
+========================================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.theme-toggle-btn,
+.sound-toggle-btn {
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 9px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle-btn:hover,
+.sound-toggle-btn:hover {
+  border-color: #94a3b8;
+}
+
+.sound-toggle-btn.sound-on {
+  background: #123524;
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+
+/* =========================================
+   CRITICAL ALERT BANNER + BEEP INDICATOR
+========================================= */
+
+.critical-banner {
+  margin: 0 40px 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #451a1a;
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  animation: critical-pulse 1.2s infinite;
+}
+
+@keyframes critical-pulse {
+  0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.5); }
+  100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0.4); }
+}
+
+.beep-indicator {
+  margin-left: auto;
+  color: #fecaca;
+  font-size: 13px;
+}
+
+.beep-indicator.muted {
+  color: #fca5a5;
+  opacity: 0.75;
+  font-weight: normal;
+}
+
+
+/* =========================================
+   ELEPHANT MOVEMENT TRAIL (on Live Map)
+========================================= */
+
+.trail-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.trail-line {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.85;
+}
+
+.trail-dot {
+  fill: #fbbf24;
+  opacity: 0.6;
+}
+
+/* STEP 5: fading elephant icons along the trail (replaces plain dots) */
+.trail-elephant {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+  filter: grayscale(0.25) drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+  transition: opacity 0.4s ease, font-size 0.4s ease;
+}
+
+
+/* =========================================
+   STEP 4: COLORED HEATMAP STRIP
+   Sits above the existing bar chart - purely additive, the
+   .heatmap-row / .heatmap-bar chart below is untouched.
+========================================= */
+
+.heat-strip-row {
+  display: flex;
+  gap: 2px;
+  height: 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 15px 0 8px;
+}
+
+.heat-strip-cell {
+  flex: 1;
+  background: #182235;
+  transition: background 0.4s ease;
+}
+
+.heat-strip-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.heat-legend-gradient {
+  flex: 1;
+  height: 6px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.9));
+}
+
+html[data-theme="light"] .heat-strip-cell {
+  background: #e2e8f0;
+}
+
+html[data-theme="light"] .heat-strip-legend {
+  color: #64748b;
+}
+
+
+/* =========================================
+   LIGHT THEME
+   Applied only when <html data-theme="light">.
+   Dark theme (default, no attribute set yet on
+   first paint / theme === "dark") is completely
+   unaffected since none of these selectors match.
+========================================= */
+
+html[data-theme="light"] body {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .header p {
+  color: #475569;
+}
+
+html[data-theme="light"] .theme-toggle-btn,
+html[data-theme="light"] .sound-toggle-btn {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .sound-toggle-btn.sound-on {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #15803d;
+}
+
+html[data-theme="light"] .system-status {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+html[data-theme="light"] .system-status.offline {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+html[data-theme="light"] .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="light"] .card p {
+  color: #64748b;
+}
+
+html[data-theme="light"] .card h2,
+html[data-theme="light"] .card h3 {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .ai-info div,
+html[data-theme="light"] .elephant-list-item,
+html[data-theme="light"] .history-item,
+html[data-theme="light"] .alert-item,
+html[data-theme="light"] .summary-box,
+html[data-theme="light"] .cost-box,
+html[data-theme="light"] .explanation-box {
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .cost-box.highlight {
+  background: #dcfce7;
+  border: 1px solid #22c55e;
+}
+
+html[data-theme="light"] .live-map {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .forest-area {
+  background: #d1fae5;
+  border-color: #34d399;
+}
+
+html[data-theme="light"] .village-area {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .node-marker {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+html[data-theme="light"] .risk-reasons,
+html[data-theme="light"] .explanation-box,
+html[data-theme="light"] .safe-route-text,
+html[data-theme="light"] .cost-note {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .video-feed-img {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .no-alerts {
+  color: #64748b;
+}
+
+html[data-theme="light"] footer {
+  color: #64748b;
+}
+
+
+/* =========================================
+   MOBILE - header controls
+========================================= */
+
+@media (max-width: 700px) {
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .critical-banner {
+    margin: 0 20px 15px;
+  }
+}
+
+/* =========================================================
+   HUMAN-ELEPHANT CONFLICT + HUMAN MAP/HISTORY
+   ========================================================= */
+
+.human-elephant-alert {
+  margin: 0 40px 20px;
+  padding: 16px 20px;
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
+}
+
+.human-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  z-index: 8;
+  transition: left 0.4s linear, top 0.4s linear;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+}
+
+.human-marker.conflict {
+  font-size: 34px;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95));
+  animation: human-conflict-pulse 0.9s infinite;
+}
+
+@keyframes human-conflict-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.18); }
+}
+
+.human-history-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0 15px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.human-history-item {
+  grid-template-columns: 90px 35px 1fr 60px !important;
+}
+
+[data-theme="light"] .human-elephant-alert {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* =========================================
+   CAMERA / INPUT SOURCE TOGGLE (ADDED)
+   Existing dashboard styles remain unchanged.
+========================================= */
+
+.camera-toggle-btn {
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #cbd5e1;
+  padding: 9px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.camera-toggle-btn:hover:not(:disabled) {
+  border-color: #38bdf8;
+  color: #f8fafc;
+}
+
+.camera-toggle-btn.camera-on {
+  background: #123524;
+  border-color: #22c55e;
+  color: #86efac;
+}
+
+.camera-toggle-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.camera-live-badge {
+  background: #123524;
+  color: #86efac;
+}
+
+.camera-mode-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #fca5a5 !important;
+}
+
+html[data-theme="light"] .camera-toggle-btn {
+  background: #ffffff;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .camera-toggle-btn.camera-on {
+  background: #ecfdf5;
+  border-color: #22c55e;
+  color: #166534;
+}

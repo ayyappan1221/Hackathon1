@@ -1,0 +1,63 @@
+# EleGuard AI - Render Blueprint (render.yaml)
+# Deploys Backend (FastAPI) as Web Service + Frontend (Vite React) as Static Site
+# Docs: https://render.com/docs/blueprint-spec
+# Usage: Push to GitHub -> Render Dashboard -> New+ -> Blueprint -> Select repo -> Apply
+
+services:
+  # ============ BACKEND: FastAPI (Python) ============
+  - type: web
+    name: eleguard-backend
+    runtime: python
+    region: singapore          # closest to India; change to oregon/frankfurt if needed
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 8000
+        # Render overwrites PORT at runtime anyway; keep sync=false so Render can inject
+      - key: CORS_ALLOW_ALL
+        value: true
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:5173,http://127.0.0.1:5173
+        # AFTER frontend is live, update this in Render Dashboard to:
+        # https://eleguard-frontend.onrender.com,http://localhost:5173
+      - key: EMAIL_ENABLED
+        value: true
+      - key: EMAIL_SENDER
+        value: dharshinia.2025ibm@gmail.com
+      - key: EMAIL_APP_PASSWORD
+        value: udvezmrpgbbvxazf
+        sync: false            # mark sensitive - don't show in logs
+      - key: EMAIL_RECIPIENT
+        value: dharshinia.2025ibm@gmail.com
+      - key: EMAIL_SMTP_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_SMTP_PORT
+        value: 587
+
+  # ============ FRONTEND: Vite React (Static Site) ============
+  - type: web
+    name: eleguard-frontend
+    runtime: static
+    region: singapore
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    # SPA fallback - Vite React Router needs this
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://eleguard-backend.onrender.com
+        # ⚠️ IMPORTANT: After backend deploys, Render gives it a real URL like
+        # https://eleguard-backend-xxxx.onrender.com
+        # Update this value in Render Dashboard -> eleguard-frontend -> Environment
+        # to that exact URL, then trigger a Manual Deploy -> Deploy latest commit
