@@ -1,13 +1,8 @@
-﻿# EleGuard AI - One-click Railway (single service)
-# Just click "Deploy" on https://railway.app/new → GitHub repo ayyappan1221/Hackathon1
-# No Root Directory needed - Dockerfile builds frontend + backend together
-
-[build]
-builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+# EleGuard AI - One-click Railway (single service)
+# Just click Deploy on https://railway.app/new -> select ayyappan1221/Hackathon1
+# No Root Directory needed - Dockerfile at repo root is auto-detected
 
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-numReplicas = 1
