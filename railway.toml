@@ -1,24 +1,12 @@
-# EleGuard AI - One-click Railway (single service via Nixpacks)
+# EleGuard AI - One-click Railway (single service via Dockerfile)
 
 # No Root Directory needed - builds frontend + backend together
 
-
-
 [build]
-
-builder = "railpack"
-
-buildCommand = "pip install -r backend/requirements.txt && pip install -r requirements.txt 2>/dev/null || true && cd frontend && npm ci && npm run build"
-
-
+builder = "dockerfile"
 
 [deploy]
-
 startCommand = "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
-
 healthcheckPath = "/"
-
 healthcheckTimeout = 300
-
 restartPolicyType = "on_failure"
-
