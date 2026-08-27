@@ -1,44 +1,55 @@
-# EleGuard AI - Render Blueprint (render.yaml)
-# Deploys Backend (FastAPI) as Web Service + Frontend (Vite React) as Static Site
-# Docs: https://render.com/docs/blueprint-spec
-# Usage: Push to GitHub -> Render Dashboard -> New+ -> Blueprint -> Select repo -> Apply
+# EleGuard AI - Render Blueprint (render.yaml) - FIXED for 'requirements.txt not found'
+# Root-cause: previous buildCommand 'pip install -r requirements.txt' runs from repo root,
+# but file lives at backend/requirements.txt. Fixed to backend/requirements.txt.
+# Also: startCommand now 'cd backend && uvicorn main:app' so it works from repo root
+# regardless of rootDir support. Frontend uses 'cd frontend && ...' pattern.
+# Works for both master (Render's default) and main branches.
 
 services:
   # ============ BACKEND: FastAPI (Python) ============
   - type: web
     name: eleguard-backend
     runtime: python
-    region: singapore          # closest to India; change to oregon/frankfurt if needed
+    region: singapore
     plan: free
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: PORT
-        value: 8000
-        # Render overwrites PORT at runtime anyway; keep sync=false so Render can inject
       - key: CORS_ALLOW_ALL
         value: true
       - key: ALLOWED_ORIGINS
-        value: http://localhost:5173,http://127.0.0.1:5173
-        # AFTER frontend is live, update this in Render Dashboard to:
-        # https://eleguard-frontend.onrender.com,http://localhost:5173
+        value: https://eleguard-frontend.onrender.com,http://localhost:5173
+      - key: CORS_ORIGINS
+        value: https://eleguard-frontend.onrender.com
       - key: EMAIL_ENABLED
         value: true
       - key: EMAIL_SENDER
         value: dharshinia.2025ibm@gmail.com
+        sync: false
       - key: EMAIL_APP_PASSWORD
         value: udvezmrpgbbvxazf
-        sync: false            # mark sensitive - don't show in logs
+        sync: false
       - key: EMAIL_RECIPIENT
         value: dharshinia.2025ibm@gmail.com
+        sync: false
       - key: EMAIL_SMTP_HOST
         value: smtp.gmail.com
       - key: EMAIL_SMTP_PORT
-        value: 587
+        value: "587"
+      - key: SMS_COOLDOWN_SECONDS
+        value: "60"
+      - key: SENSOR_STALE_SECONDS
+        value: "8"
+      - key: ALERT_MODE_COOLDOWN_SECONDS
+        value: "8"
+      - key: FOREST_LIMIT
+        value: "0.45"
+      - key: VILLAGE_LIMIT
+        value: "0.72"
 
   # ============ FRONTEND: Vite React (Static Site) ============
   - type: web
@@ -46,18 +57,22 @@ services:
     runtime: static
     region: singapore
     plan: free
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    # SPA fallback - Vite React Router needs this
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    autoDeploy: true
+    # SPA fallback
     routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://eleguard-backend.onrender.com/api/*
+      - type: rewrite
+        source: /api/video-feed
+        destination: https://eleguard-backend.onrender.com/api/video-feed
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
         value: https://eleguard-backend.onrender.com
-        # ⚠️ IMPORTANT: After backend deploys, Render gives it a real URL like
-        # https://eleguard-backend-xxxx.onrender.com
-        # Update this value in Render Dashboard -> eleguard-frontend -> Environment
-        # to that exact URL, then trigger a Manual Deploy -> Deploy latest commit
+        # AFTER backend deploys, Render assigns real URL like https://eleguard-backend-xxxx.onrender.com
+        # Update this in Dashboard -> eleguard-frontend -> Environment if it differs
