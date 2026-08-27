@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from datetime import datetime
 import base64
 import asyncio
@@ -8,10 +10,6 @@ import smtplib
 import json
 import os
 from email.mime.text import MIMEText
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 # ---- SQLite persistence (graceful fallback if file missing) ----
 try:
@@ -53,6 +51,25 @@ except ImportError:
 app = FastAPI(
     title="EleGuard AI Backend",
     version="2.0.0"
+)
+
+# Render injects PORT env var - keep for local too
+PORT = int(os.getenv("PORT", "8000"))
+
+# CORS: allow Render frontend via env, plus local vite
+_allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+_allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
+# also allow any *.onrender.com and *.vercel.app for demo
+# FastAPI CORSMiddleware doesn't support wildcards, so we allow all if env says "*"
+if os.getenv("CORS_ALLOW_ALL", "false").lower() == "true":
+    _allowed_origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Init DB on import (creates eleguard.db if missing) + hydrate in-memory caches
@@ -109,19 +126,37 @@ async def _hydrate_from_db():
 
 
 # =========================================================
+# ONE-CLICK RAILWAY: Serve Vite frontend from FastAPI when built
+# Dockerfile copies frontend/dist to /app/frontend/dist, so a single
+# Railway service serves both API (/api/*) and UI (/) without CORS.
+# =========================================================
+_frontend_candidates = [
+    Path(__file__).parent.parent / "frontend" / "dist",  # /app/frontend/dist (Dockerfile)
+    Path(__file__).parent / ".." / "frontend" / "dist",  # alt
+    Path("frontend/dist"),                                 # CWD fallback
+    Path("/app/frontend/dist"),
+]
+_frontend_dist = next((p.resolve() for p in _frontend_candidates if p.exists() and (p / "index.html").exists()), None)
+if _frontend_dist:
+    print(f"✅ Serving frontend from {_frontend_dist}")
+    # API routes already registered; mount static last so /api/* takes precedence
+    app.mount("/assets", StaticFiles(directory=str(_frontend_dist / "assets")), name="assets")
+    @app.get("/{full_path:path}")
+    async def _serve_frontend(full_path: str):
+        # Don't hijack API/docs
+        if full_path.startswith("api/") or full_path in ("docs", "openapi.json", "redoc"):
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": "Not Found"}, status_code=404)
+        target = _frontend_dist / full_path
+        if full_path and target.exists() and target.is_file():
+            return FileResponse(str(target))
+        return FileResponse(str(_frontend_dist / "index.html"))
+else:
+    print("ℹ️ Frontend dist not found - API-only mode (dev)")
+
+# =========================================================
 # CORS
 # =========================================================
-
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 # =========================================================
 # CONFIG
@@ -167,16 +202,16 @@ EMAIL_SMTP_PORT = int(os.getenv("EMAIL_SMTP_PORT", "587"))
 
 # Minimum seconds between alert emails - protects against every single
 # CRITICAL poll spamming the inbox.
-SMS_COOLDOWN_SECONDS = int(os.getenv("SMS_COOLDOWN_SECONDS", "60"))
+SMS_COOLDOWN_SECONDS = 60
 
 # If a node hasn't posted sensor data in this many seconds,
 # we treat it as OFFLINE / failed (sensor failure detection).
-SENSOR_STALE_SECONDS = int(os.getenv("SENSOR_STALE_SECONDS", "8"))
+SENSOR_STALE_SECONDS = 8
 
 # Zone thresholds - kept identical to the AI script so
 # predictions/labels line up with what YOLO reports.
-FOREST_LIMIT = float(os.getenv("FOREST_LIMIT", "0.45"))
-VILLAGE_LIMIT = float(os.getenv("VILLAGE_LIMIT", "0.72"))
+FOREST_LIMIT = 0.45
+VILLAGE_LIMIT = 0.72
 
 # =========================================================
 # NEW (STEP 1): DETECTION-HISTORY DEDUP THRESHOLDS
