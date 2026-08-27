@@ -1,0 +1,14 @@
+[build]
+builder = "railpack"
+
+[build.apt]
+packages = ["nodejs", "npm"]
+
+[build.commands]
+build = "pip install -r backend/requirements.txt && pip install -r requirements.txt 2>/dev/null || true && cd frontend && npm ci && npm run build"
+
+[deploy]
+startCommand = "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
