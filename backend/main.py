@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from datetime import datetime
 import base64
 import asyncio
@@ -122,6 +124,35 @@ async def _hydrate_from_db():
     except Exception as _e:
         print(f"⚠️ DB hydrate failed: {_e}")
 
+
+# =========================================================
+# ONE-CLICK RAILWAY: Serve Vite frontend from FastAPI when built
+# Dockerfile copies frontend/dist to /app/frontend/dist, so a single
+# Railway service serves both API (/api/*) and UI (/) without CORS.
+# =========================================================
+_frontend_candidates = [
+    Path(__file__).parent.parent / "frontend" / "dist",  # /app/frontend/dist (Dockerfile)
+    Path(__file__).parent / ".." / "frontend" / "dist",  # alt
+    Path("frontend/dist"),                                 # CWD fallback
+    Path("/app/frontend/dist"),
+]
+_frontend_dist = next((p.resolve() for p in _frontend_candidates if p.exists() and (p / "index.html").exists()), None)
+if _frontend_dist:
+    print(f"✅ Serving frontend from {_frontend_dist}")
+    # API routes already registered; mount static last so /api/* takes precedence
+    app.mount("/assets", StaticFiles(directory=str(_frontend_dist / "assets")), name="assets")
+    @app.get("/{full_path:path}")
+    async def _serve_frontend(full_path: str):
+        # Don't hijack API/docs
+        if full_path.startswith("api/") or full_path in ("docs", "openapi.json", "redoc"):
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": "Not Found"}, status_code=404)
+        target = _frontend_dist / full_path
+        if full_path and target.exists() and target.is_file():
+            return FileResponse(str(target))
+        return FileResponse(str(_frontend_dist / "index.html"))
+else:
+    print("ℹ️ Frontend dist not found - API-only mode (dev)")
 
 # =========================================================
 # CORS

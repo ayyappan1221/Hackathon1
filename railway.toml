@@ -1,17 +1,13 @@
-# EleGuard AI - Railway Monorepo
-# Deploy as TWO separate Railway services from same GitHub repo:
-# 1) eleguard-backend -> Root Directory = backend/
-#    Railway auto-detects backend/railway.toml + backend/requirements.txt
-#    Start: uvicorn main:app --host 0.0.0.0 --port $PORT
-# 2) eleguard-frontend -> Root Directory = frontend/
-#    Railway auto-detects frontend/railway.toml + frontend/package.json
-#    Start: npx serve -s dist -l $PORT
-# Environment: Set VITE_API_URL in frontend service to backend Railway public URL
+﻿# EleGuard AI - One-click Railway (single service)
+# Just click "Deploy" on https://railway.app/new → GitHub repo ayyappan1221/Hackathon1
+# No Root Directory needed - Dockerfile builds frontend + backend together
 
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 healthcheckPath = "/"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
+numReplicas = 1
