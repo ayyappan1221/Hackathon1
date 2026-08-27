@@ -36,6 +36,18 @@ function App() {
   // ---- THEME TOGGLE ----
   const [theme, setTheme] = useState("dark");
 
+  // ---- VIDEO FRAME (single-frame refresh for cloud proxy compatibility) ----
+  const [videoFrameUrl, setVideoFrameUrl] = useState("");
+  const videoFrameTimerRef = useRef(null);
+  useEffect(() => {
+    const refreshFrame = () => {
+      setVideoFrameUrl(`${API}/api/video-frame?t=${Date.now()}`);
+    };
+    refreshFrame();
+    videoFrameTimerRef.current = setInterval(refreshFrame, 300);
+    return () => { if (videoFrameTimerRef.current) clearInterval(videoFrameTimerRef.current); };
+  }, []);
+
   // ---- CRITICAL ALERT SOUND (fixed: non-interruptible) ----
   const [soundEnabled, setSoundEnabled] = useState(false);
   const audioCtxRef = useRef(null);
@@ -1388,12 +1400,11 @@ function App() {
             </div>
 
             <img
-              src={`${API}/api/video-feed`}
+              src={videoFrameUrl || `${API}/api/video-frame?t=${Date.now()}`}
               alt="Live YOLO detection feed"
               className="video-feed-img"
               onError={(e) => {
-                e.target.style.display =
-                  "none";
+                setTimeout(() => { e.target.src = `${API}/api/video-frame?t=${Date.now()}`; }, 1000);
               }}
             />
 

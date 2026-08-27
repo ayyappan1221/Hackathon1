@@ -64,3 +64,6 @@ iot/battery_state.txt
 
 # Keep render.yaml tracked
 !render.yaml
+
+ai/*.pt
+*.pt

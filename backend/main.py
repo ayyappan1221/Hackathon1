@@ -868,6 +868,15 @@ def video_feed():
     )
 
 
+@app.get("/api/video-frame")
+def video_frame_single():
+    if latest_video_frame is None:
+        from fastapi.responses import Response
+        return Response(content=b"", media_type="image/jpeg", status_code=204)
+    from fastapi.responses import Response
+    return Response(content=latest_video_frame, media_type="image/jpeg")
+
+
 # =========================================================
 # MOVEMENT PREDICTION  (feature 7 - Movement prediction)
 # =========================================================
