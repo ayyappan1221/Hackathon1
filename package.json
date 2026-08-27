@@ -1,0 +1,11 @@
+{
+  "name": "eleguard-ai",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:frontend": "cd frontend && npm ci && npm run build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
