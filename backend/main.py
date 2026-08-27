@@ -8,7 +8,10 @@ import base64
 import asyncio
 import smtplib
 import json
+import math
 import os
+import threading
+import time
 from email.mime.text import MIMEText
 
 # ---- SQLite persistence (graceful fallback if file missing) ----
@@ -126,12 +129,202 @@ async def _hydrate_from_db():
     except Exception as _e:
         print(f"⚠️ DB hydrate failed: {_e}")
 
+@app.on_event("startup")
+async def _start_demo_simulator():
+    """Start the demo simulator background thread if demo mode is enabled."""
+    if demo_mode_enabled:
+        t = threading.Thread(target=_demo_simulator_loop, daemon=True)
+        t.start()
+        print("🎬 Demo simulator started (DEMO_MODE=true)")
+
 
 # =========================================================
 # ONE-CLICK RAILWAY: Serve Vite frontend from FastAPI when built
-# Dockerfile copies frontend/dist to /app/frontend/dist, so a single
-# Railway service serves both API (/api/*) and UI (/) without CORS.
 # =========================================================
+
+# =========================================================
+# DEMO MODE SIMULATOR
+# =========================================================
+# When enabled, the backend auto-simulates elephant movement,
+# sensor data, and video frames so the dashboard works on Render
+# without the local AI script running.
+
+demo_mode_enabled = os.getenv("DEMO_MODE", "true").lower() == "true"
+_demo_lock = threading.Lock()
+_demo_elephant_x = 0.1
+_demo_phase = 0  # 0=forest, 1=moving, 2=approaching, 3=near village, 4=moving away
+_demo_start_time = None
+
+
+@app.post("/api/demo/toggle")
+def toggle_demo_mode(data: dict = None):
+    global demo_mode_enabled
+    with _demo_lock:
+        demo_mode_enabled = not demo_mode_enabled
+        state = "enabled" if demo_mode_enabled else "disabled"
+    return {"demo_mode": demo_mode_enabled, "message": f"Demo mode {state}"}
+
+
+@app.get("/api/demo/status")
+def get_demo_status():
+    return {"demo_mode": demo_mode_enabled}
+
+
+def _generate_demo_frame(x_pos, risk_level, elephant_count=1):
+    """Generate a synthetic JPEG frame using Pillow."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return None
+
+    W, H = 640, 480
+    img = Image.new("RGB", (W, H), (34, 80, 34))  # dark forest green
+    draw = ImageDraw.Draw(img)
+
+    # forest gradient background
+    for y in range(H):
+        r = int(34 + (y / H) * 20)
+        g = int(80 - (y / H) * 30)
+        b = int(34 + (y / H) * 10)
+        draw.line([(0, y), (W, y)], fill=(r, g, b))
+
+    # tree silhouettes
+    import random
+    rng = random.Random(42)
+    for _ in range(8):
+        tx = rng.randint(0, W)
+        th = rng.randint(80, 180)
+        tw = rng.randint(20, 40)
+        ty = H - th
+        draw.polygon([(tx, ty), (tx - tw, H), (tx + tw, H)], fill=(20, 50, 20))
+
+    # village zone (right side)
+    vx = int(VILLAGE_LIMIT * W)
+    draw.rectangle([vx, H - 60, W, H], fill=(120, 100, 60))
+    draw.text((vx + 10, H - 50), "VILLAGE", fill=(200, 180, 100))
+
+    # elephant silhouette (simple oval + trunk)
+    ex = int(x_pos * W)
+    ey = H - 120
+    ew, eh = 80, 50
+    draw.ellipse([ex - ew // 2, ey, ex + ew // 2, ey + eh], fill=(100, 100, 100))
+    draw.ellipse([ex + ew // 2 - 10, ey + 5, ex + ew // 2 + 15, ey + eh - 5], fill=(100, 100, 100))
+    # trunk
+    draw.line([(ex + ew // 2 + 5, ey + 15), (ex + ew // 2 + 25, ey + 35)], fill=(100, 100, 100), width=4)
+    # legs
+    for lx in [ex - 20, ex - 5, ex + 10, ex + 25]:
+        draw.rectangle([lx, ey + eh, lx + 6, ey + eh + 20], fill=(80, 80, 80))
+
+    # bounding box
+    color = {"CRITICAL": (255, 0, 0), "HIGH": (255, 165, 0), "MEDIUM": (255, 255, 0), "LOW": (0, 255, 0)}.get(risk_level, (0, 255, 0))
+    draw.rectangle([ex - ew // 2 - 5, ey - 5, ex + ew // 2 + 30, ey + eh + 25], outline=color, width=2)
+    draw.text((ex - ew // 2 - 5, ey - 20), f"Elephant ({risk_level})", fill=color)
+
+    # overlay info
+    draw.rectangle([0, 0, 220, 60], fill=(0, 0, 0, 180))
+    draw.text((10, 5), "EleGuard AI - DEMO", fill=(0, 255, 0))
+    draw.text((10, 25), f"Risk: {risk_level} | Elephants: {elephant_count}", fill=(255, 255, 255))
+
+    import io
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=75)
+    return buf.getvalue()
+
+
+def _demo_simulator_loop():
+    """Background thread that simulates elephant movement + sensor data."""
+    global _demo_elephant_x, _demo_phase, _demo_start_time
+    global latest_detection_data, latest_sensor_data, latest_video_frame
+
+    _demo_start_time = time.time()
+
+    # Phase durations (seconds): forest → moving → approaching → near → moving away → cycle
+    phase_durations = [8, 6, 6, 5, 6]  # total ~31s per cycle
+    phase_movements = ["IN FOREST", "MOVING", "APPROACHING VILLAGE", "NEAR VILLAGE", "MOVING AWAY"]
+    phase_x_targets = [0.25, 0.40, 0.60, 0.80, 0.30]  # target x for each phase
+
+    while True:
+        time.sleep(1.0)  # update every 1s
+
+        if not demo_mode_enabled:
+            continue
+
+        elapsed = time.time() - _demo_start_time
+        cycle_pos = elapsed % sum(phase_durations)
+
+        # determine current phase
+        cumulative = 0
+        for i, dur in enumerate(phase_durations):
+            if cycle_pos < cumulative + dur:
+                _demo_phase = i
+                break
+            cumulative += dur
+
+        # interpolate x position within phase
+        phase_elapsed = cycle_pos - cumulative
+        phase_progress = min(phase_elapsed / phase_durations[_demo_phase], 1.0)
+
+        target_x = phase_x_targets[_demo_phase]
+        start_x = phase_x_targets[(_demo_phase - 1) % len(phase_durations)] if _demo_phase > 0 else phase_x_targets[-1]
+        _demo_elephant_x = start_x + (target_x - start_x) * phase_progress
+        _demo_elephant_x = max(0.05, min(0.95, _demo_elephant_x))
+
+        movement = phase_movements[_demo_phase]
+        location = get_zone_label(_demo_elephant_x)
+        risk_data = {"movement": movement}
+        # quick risk calc for frame color
+        rm = movement
+        if rm == "IN FOREST": rl = "MEDIUM"
+        elif rm == "MOVING": rl = "MEDIUM"
+        elif rm == "APPROACHING VILLAGE": rl = "HIGH"
+        elif rm == "NEAR VILLAGE": rl = "CRITICAL"
+        elif rm == "MOVING AWAY": rl = "MEDIUM"
+        else: rl = "MEDIUM"
+
+        # update detection data
+        now_iso = datetime.now().isoformat()
+        latest_detection_data = {
+            "elephant_detected": True,
+            "elephant_count": 1,
+            "elephant_confidence": round(0.75 + 0.2 * math.sin(elapsed * 0.3), 2),
+            "human_detected": False,
+            "human_count": 0,
+            "vehicle_detected": False,
+            "vehicle_count": 0,
+            "movement": movement,
+            "location": location,
+            "x_position": round(_demo_elephant_x, 3),
+            "y_position": round(0.5 + 0.1 * math.sin(elapsed * 0.2), 3),
+            "primary_elephant_id": "DEMO_001",
+            "elephants": [{
+                "id": "DEMO_001",
+                "confidence": round(0.75 + 0.2 * math.sin(elapsed * 0.3), 2),
+                "x_position": round(_demo_elephant_x, 3),
+                "y_position": round(0.5 + 0.1 * math.sin(elapsed * 0.2), 3),
+                "movement": movement,
+                "location": location
+            }],
+            "human_sightings": [],
+            "timestamp": now_iso
+        }
+
+        # update sensor data (simulate vibration when elephant moves)
+        vibration_base = 20 if movement in ("MOVING", "APPROACHING VILLAGE", "NEAR VILLAGE") else 5
+        latest_sensor_data = {
+            "node_id": "NODE_01",
+            "motion": movement not in ("IN FOREST", "NO MOVEMENT"),
+            "vibration": int(vibration_base + 10 * abs(math.sin(elapsed * 0.5))),
+            "temperature": round(28.0 + 3 * math.sin(elapsed * 0.1), 1),
+            "battery": max(20, int(95 - elapsed * 0.01)),
+            "buzzer": rl == "CRITICAL",
+            "led": rl in ("CRITICAL", "HIGH"),
+            "timestamp": now_iso
+        }
+
+        # generate video frame
+        frame = _generate_demo_frame(_demo_elephant_x, rl)
+        if frame:
+            latest_video_frame = frame
 _frontend_candidates = [
     Path(__file__).parent.parent / "frontend" / "dist",  # /app/frontend/dist (Dockerfile)
     Path(__file__).parent / ".." / "frontend" / "dist",  # alt

@@ -24,6 +24,9 @@ function App() {
   const [cameraBusy, setCameraBusy] = useState(false);
   const [cameraError, setCameraError] = useState("");
 
+  // ---- DEMO MODE (built-in simulator) ----
+  const [demoMode, setDemoMode] = useState(true);
+
   const [error, setError] = useState("");
   const [offline, setOffline] = useState(false);
 
@@ -157,6 +160,32 @@ function App() {
     }
   };
 
+  const fetchDemoStatus = async () => {
+    try {
+      const res = await fetch(`${API}/api/demo/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setDemoMode(data.demo_mode);
+      }
+    } catch (_) {}
+  };
+
+  const toggleDemoMode = async () => {
+    try {
+      const res = await fetch(`${API}/api/demo/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDemoMode(data.demo_mode);
+      }
+    } catch (err) {
+      console.error("Demo toggle failed:", err);
+    }
+  };
+
   const fetchSmsData = async () => {
     try {
       const res = await fetch(`${API}/api/sms-status`);
@@ -199,6 +228,7 @@ function App() {
         fetchStatsData(),
         fetchHumanHistoryData(),
         fetchCameraMode(),
+        fetchDemoStatus(),
       ]);
 
       fetchSmsData();
@@ -896,6 +926,17 @@ function App() {
               : cameraMode === "CAMERA"
                 ? "📷 Camera ON"
                 : "🎥 Video Mode"}
+          </button>
+
+          {/* DEMO MODE TOGGLE */}
+          <button
+            className={`camera-toggle-btn ${
+              demoMode ? "camera-on" : ""
+            }`}
+            onClick={toggleDemoMode}
+            title="Toggle built-in demo simulator (elephant movement + video)"
+          >
+            {demoMode ? "🎬 Demo ON" : "🎬 Demo OFF"}
           </button>
 
           <div
